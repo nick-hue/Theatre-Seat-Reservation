@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from PIL import ImageTk,Image
 
 root = tk.Tk()
 root.title("Theatre Seat Reservation")
@@ -86,10 +87,10 @@ def make_theatre_for_file(rows, columns):
     for row in range(rows):
         letter = Row_Letter[row]
         Labels[row] = tk.Label(frame2, text = f'{letter}: ')
-        Labels[row].grid(row=row, column=0, padx = 1, pady = 1)
+        Labels[row].grid(row=row, column=1, padx = 1, pady = 1)
         for col in range(columns):
             Buttons[row][col] = tk.Button(frame2, width = 2, text = col+1, bg = 'green', command= lambda x1=letter, y1=col+1, x2=row: show_info(x1,y1,x2))
-            Buttons[row][col].grid(row=row, column=col+1, padx = 1, pady = 1)
+            Buttons[row][col].grid(row=row, column=col+2, padx = 1, pady = 1)
     
 def make_reservation_for_file(row, col):
     global Seats
@@ -195,13 +196,44 @@ def import_theatre():
             make_reservation_for_file(seat_row, seat_col-1)
         print('Theatre Imported!')
 
-def show_movies(MOVIES):
+def show_movie_theatre(movie_name):
+    theatre_file = open(f"Movie Theatres\\{movie_name}Theatre.txt", "r")
+    info = theatre_file.read()
+    theatre_file.close()
+    print(info)
+    info_array = info.split()
+    row, col = int(info_array[0]), int(info_array[1])
+    make_theatre_for_file(row, col)
+    for i in range(2, len(info_array), 1):
+        seat_row, seat_col = get_row_col(info_array[i])
+        switch(Buttons[seat_row][seat_col-1])
+        make_reservation_for_file(seat_row, seat_col-1)
+    print('Theatre Imported!')
+
+
+def show_movies():
+    for i in range(len(MOVIES)):
+        tk.Button(movie_frame, image = MOVIES[MOVIE_NAMES[i]], command= lambda x1=MOVIE_NAMES[i]: show_movie_info(x1)).grid(row = 1, column = i, padx = 3, pady = 1)
+        tk.Label(movie_frame, text = MOVIE_NAMES[i]).grid(row = 2, column = i, padx = 3)
     
-    pass
+def show_movie_info(movie_name):
+    if movie_name == "Uncharted":
+        clear_frame(movie_frame)
+        tk.Label(show_frame, image = unchartedImage).grid(row = 0, column = 0)
+        tk.Button(show_frame, text = 'Show Available Seats', command = lambda x1=movie_name: show_movie_theatre(x1)).grid(row = 1, column = 0, pady = 5)
+
+    elif movie_name == "Scream":
+        print("Scream")
+    elif movie_name == "Batman":
+        print("Batman")
+
 
 # MAKE MOVIE PICKER FRAME 
 movie_frame = tk.Frame(root)
-movie_frame.grid(row = 0, column = 0)
+movie_frame.grid(row = 0, column = 1)
+
+show_frame = tk.Frame(root)
+show_frame.grid(row = 0, column = 0)
 
 # MAKE THEATRE FRAME
 frame1 = tk.Frame(root)
@@ -216,14 +248,23 @@ frame3 = tk.Frame(root)
 frame3.grid(row=3,column=0)
 
 # PICK A MOVIE 
+unchartedImage = ImageTk.PhotoImage(Image.open("Movie Images\\UnchartedImage.jpg"))
+screamImage = ImageTk.PhotoImage(Image.open("Movie Images\\ScreamImage.jpg"))
+batmanImage = ImageTk.PhotoImage(Image.open("Movie Images\\BatmanImage.jpg"))
+
+MOVIE_NAMES = ["Uncharted", "Scream", "Batman"]
+
 MOVIES = {
-    "Uncharted":"MovieImages//UnchartedImage.jpg",
-    "Scream":"MovieImages//ScreamImage.jpg",
-    "Batman":"MovieImages//BatmanImage.jpg"
+    "Uncharted":unchartedImage,
+    "Scream":screamImage,
+    "Batman":batmanImage
 }
-pick_movie_label = tk.Label(movie_frame, text = 'Pick a movie:')
+
+pick_movie_label = tk.Label(movie_frame, text = '           Playing Now ')
 pick_movie_label.grid(row = 0, column = 0)
-#show_movies()
+upcoming_movie_label = tk.Label(movie_frame, text = ' Upcoming ')
+upcoming_movie_label.grid(row = 0, column = 2)
+show_movies()
 
 # MAKE THEATRE INFORMATION WIDGETS
 label_rows_entry = tk.Label(frame1, text = '    How many rows is the theatre going to be: ')
